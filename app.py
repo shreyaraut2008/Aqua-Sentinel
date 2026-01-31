@@ -334,6 +334,44 @@ def view_scan_report(scan_id):
     
     return render_template('view_report.html', username=username, scan=scan)
 
+@app.route('/api/ask', methods=['POST'])
+@login_required
+def api_ask():
+    """Answer a question about the species using Gemini (text-only)"""
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({'success': False, 'error': 'No data provided'}), 400
+
+        question = (data.get('question') or '').strip()
+        if not question:
+            return jsonify({'success': False, 'error': 'Please enter a question'}), 400
+
+        context = data.get('context', {})
+        species_name = context.get('species_name', 'the species')
+        scientific_name = context.get('scientific_name', '')
+        description = context.get('description', '')
+        location = context.get('location', '')
+
+        prompt = f"""You are a marine biology expert assistant. The user is viewing a scan report for:
+- Species: {species_name}
+- Scientific name: {scientific_name}
+- Description: {description}
+- Location: {location}
+
+The user asks: "{question}"
+
+Give a clear, helpful, and concise answer (2–4 sentences). Focus on marine biology and this species when relevant. Do not use markdown or code blocks."""
+
+        model = genai.GenerativeModel('gemini-2.5-flash')
+        response = model.generate_content(prompt)
+        answer = (response.text or '').strip()
+
+        return jsonify({'success': True, 'answer': answer})
+    except Exception as e:
+        print(f"Ask API error: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 @app.route('/recent-scans')
 @login_required
 def recent_scans():
