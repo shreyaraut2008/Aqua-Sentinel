@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AquaSentinel - Explore the Ocean with AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Background Video -->
+    <div class="video-container">
+        <video autoplay muted loop class="background-video">
+            <source src="{{ url_for('static', filename='assets/bg video 1.mp4') }}" type="video/mp4">
+            Your browser does not support HTML5 video.
+        </video>
+        <!-- Dark blue overlay gradient -->
+        <div class="video-overlay"></div>
+    </div>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <!-- Left side: Logo and brand -->
+            <div class="navbar-brand">
+                <span class="trident-icon">🔱</span>
+                <span class="brand-name">AquaSentinel</span>
+            </div>
+
+            <!-- Right side: Navigation links -->
+            <div class="navbar-menu">
+                <a href="#about" class="nav-link">About Us</a>
+                <a href="#how-it-works" class="nav-link">How It Works</a>
+                <a href="#contact" class="nav-link">Contact</a>
+                <a href="{{ url_for('signin') }}" class="nav-link">Sign In</a>
+                <a href="{{ url_for('signup') }}" class="btn-signup">Sign Up</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <!-- Main Heading -->
+            <h1 class="hero-title">Explore the Ocean with AI</h1>
+
+            <!-- Subheading -->
+            <p class="hero-subtitle">
+                Identify marine species instantly using image + location powered by AquaSentinel.
+            </p>
+
+            <!-- CTA Buttons -->
+            <div class="hero-buttons">
+                <a href="{{ url_for('signup') }}" class="btn-primary">Get Started</a>
+                <a href="#how-it-works" class="btn-secondary">Learn More</a>
+            </div>
+        </div>
+
+        <!-- Scroll indicator -->
+        <div class="scroll-indicator">
+            <span class="scroll-text">Scroll to explore</span>
+            <div class="scroll-arrow">
+                <i class="fas fa-chevron-down"></i>
+            </div>
+        </div>
+    </section>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scan Species - AquaSentinel</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="scan-page">
+    <!-- Background Video -->
+    <div class="video-container">
+        <video autoplay muted loop class="background-video">
+            <source src="{{ url_for('static', filename='assets/bg video 1.mp4') }}" type="video/mp4">
+            Your browser does not support HTML5 video.
+        </video>
+        <div class="video-overlay"></div>
+    </div>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="{{ url_for('dashboard') }}" class="navbar-brand">
+                <span class="trident-icon">🔱</span>
+                <span class="brand-name">AquaSentinel</span>
+            </a>
+            <div class="navbar-menu">
+                <a href="{{ url_for('dashboard') }}" class="nav-link">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+                <div class="user-info">
+                    <i class="fas fa-user-circle"></i>
+                    <span>{{ username }}</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Scan Section -->
+    <section class="scan-section">
+        <div class="scan-container">
+            <!-- Header -->
+            <div class="scan-header">
+                <h1 class="scan-title">Scan Marine Species</h1>
+                <p class="scan-subtitle">Upload a photo and let AquaSentinel identify the species using AI.</p>
+            </div>
+
+            <!-- Scan Card -->
+            <div class="scan-card">
+                <!-- Image Upload Section -->
+                <div class="upload-section">
+                    <label class="section-label">
+                        <i class="fas fa-image"></i>
+                        Upload Ocean Image
+                    </label>
+                    
+                    <div class="upload-box" id="uploadBox">
+                        <input type="file" id="imageInput" accept="image/jpeg,image/png,image/jpg" hidden>
+                        <div class="upload-content" id="uploadContent">
+                            <div class="upload-icon">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                            </div>
+                            <p class="upload-text">Drag & drop your image here</p>
+                            <p class="upload-hint">or click to browse</p>
+                            <span class="upload-formats">Supports: JPG, PNG</span>
+                        </div>
+                        <div class="image-preview" id="imagePreview" style="display: none;">
+                            <img id="previewImg" src="" alt="Preview">
+                            <button type="button" class="remove-image" id="removeImage">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Location Section -->
+                <div class="location-section">
+                    <label class="section-label">
+                        <i class="fas fa-map-marker-alt"></i>
+                        Location Detection
+                    </label>
+                    
+                    <button type="button" class="detect-location-btn" id="detectLocationBtn">
+                        <i class="fas fa-crosshairs"></i>
+                        <span>Detect My Location</span>
+                    </button>
+
+                    <!-- Location Display -->
+                    <div class="location-display" id="locationDisplay" style="display: none;">
+                        <div class="location-item">
+                            <i class="fas fa-map-pin"></i>
+                            <span id="coordinates">Loading...</span>
+                        </div>
+                        <div class="location-item" id="regionItem" style="display: none;">
+                            <i class="fas fa-water"></i>
+                            <span id="regionName">Detecting region...</span>
+                        </div>
+                    </div>
+
+                    <!-- Location Loading -->
+                    <div class="location-loading" id="locationLoading" style="display: none;">
+                        <div class="sonar-wave"></div>
+                        <span>Detecting location...</span>
+                    </div>
+
+                    <!-- Location Error -->
+                    <div class="location-error" id="locationError" style="display: none;">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span id="locationErrorText">Unable to detect location</span>
+                    </div>
+                </div>
+
+                <!-- Scan Button -->
+                <button type="button" class="scan-btn" id="scanBtn" disabled>
+                    <span class="scan-btn-text">
+                        <i class="fas fa-search"></i>
+                        Scan Species
+                    </span>
+                    <span class="scan-btn-loading" style="display: none;">
+                        <div class="sonar-loader"></div>
+                        Analyzing...
+                    </span>
+                </button>
+
+                <!-- Requirements Info -->
+                <div class="scan-requirements">
+                    <p><i class="fas fa-info-circle"></i> Upload an image and detect your location to enable scanning</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Loading Overlay -->
+    <div class="scan-loading-overlay" id="scanLoadingOverlay" style="display: none;">
+        <div class="loading-content">
+            <div class="sonar-animation">
+                <div class="sonar-ring"></div>
+                <div class="sonar-ring"></div>
+                <div class="sonar-ring"></div>
+                <i class="fas fa-fish"></i>
+            </div>
+            <h3>Analyzing Marine Species</h3>
+            <p>Our AI is identifying your specimen...</p>
+            <div class="loading-progress">
+                <div class="loading-bar"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Store data for submission
+        let uploadedImage = null;
+        let locationData = {
+            latitude: null,
+            longitude: null,
+            region: null,
+            country: null,
+            fullAddress: null
+        };
+
+        // DOM Elements
+        const uploadBox = document.getElementById('uploadBox');
+        const imageInput = document.getElementById('imageInput');
+        const uploadContent = document.getElementById('uploadContent');
+        const imagePreview = document.getElementById('imagePreview');
+        const previewImg = document.getElementById('previewImg');
+        const removeImage = document.getElementById('removeImage');
+        const detectLocationBtn = document.getElementById('detectLocationBtn');
+        const locationDisplay = document.getElementById('locationDisplay');
+        const locationLoading = document.getElementById('locationLoading');
+        const locationError = document.getElementById('locationError');
+        const coordinates = document.getElementById('coordinates');
+        const regionItem = document.getElementById('regionItem');
+        const regionName = document.getElementById('regionName');
+        const scanBtn = document.getElementById('scanBtn');
+        const scanLoadingOverlay = document.getElementById('scanLoadingOverlay');
+
+        // Image Upload Handlers
+        uploadBox.addEventListener('click', () => imageInput.click());
+
+        uploadBox.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadBox.classList.add('dragover');
+        });
+
+        uploadBox.addEventListener('dragleave', () => {
+            uploadBox.classList.remove('dragover');
+        });
+
+        uploadBox.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadBox.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleImageUpload(files[0]);
+            }
+        });
+
+        imageInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleImageUpload(e.target.files[0]);
+            }
+        });
+
+        removeImage.addEventListener('click', (e) => {
+            e.stopPropagation();
+            resetImageUpload();
+        });
+
+        function handleImageUpload(file) {
+            if (!file.type.match(/^image\/(jpeg|png|jpg)$/)) {
+                alert('Please upload a JPG or PNG image.');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                uploadedImage = e.target.result;
+                previewImg.src = uploadedImage;
+                uploadContent.style.display = 'none';
+                imagePreview.style.display = 'block';
+                checkScanReady();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function resetImageUpload() {
+            uploadedImage = null;
+            imageInput.value = '';
+            previewImg.src = '';
+            uploadContent.style.display = 'flex';
+            imagePreview.style.display = 'none';
+            checkScanReady();
+        }
+
+        // Location Detection
+        detectLocationBtn.addEventListener('click', detectLocation);
+
+        function detectLocation() {
+            if (!navigator.geolocation) {
+                showLocationError('Geolocation is not supported by your browser.');
+                return;
+            }
+
+            // Show loading state
+            detectLocationBtn.disabled = true;
+            locationLoading.style.display = 'flex';
+            locationDisplay.style.display = 'none';
+            locationError.style.display = 'none';
+
+            navigator.geolocation.getCurrentPosition(
+                async (position) => {
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
+                    
+                    locationData.latitude = lat;
+                    locationData.longitude = lon;
+
+                    // Display coordinates
+                    const latDir = lat >= 0 ? 'N' : 'S';
+                    const lonDir = lon >= 0 ? 'E' : 'W';
+                    coordinates.textContent = `📍 Location detected: ${Math.abs(lat).toFixed(2)}°${latDir}, ${Math.abs(lon).toFixed(2)}°${lonDir}`;
+                    
+                    locationLoading.style.display = 'none';
+                    locationDisplay.style.display = 'block';
+                    detectLocationBtn.disabled = false;
+                    detectLocationBtn.innerHTML = '<i class="fas fa-check-circle"></i><span>Location Detected</span>';
+                    detectLocationBtn.classList.add('detected');
+
+                    // Reverse geocode
+                    await reverseGeocode(lat, lon);
+                    checkScanReady();
+                },
+                (error) => {
+                    locationLoading.style.display = 'none';
+                    detectLocationBtn.disabled = false;
+                    
+                    let errorMsg = 'Unable to detect location.';
+                    switch(error.code) {
+                        case error.PERMISSION_DENIED:
+                            errorMsg = 'Location access denied. Please enable location permissions.';
+                            break;
+                        case error.POSITION_UNAVAILABLE:
+                            errorMsg = 'Location information unavailable.';
+                            break;
+                        case error.TIMEOUT:
+                            errorMsg = 'Location request timed out.';
+                            break;
+                    }
+                    showLocationError(errorMsg);
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0
+                }
+            );
+        }
+
+        async function reverseGeocode(lat, lon) {
+            try {
+                const response = await fetch(
+                    `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`,
+                    {
+                        headers: {
+                            'User-Agent': 'AquaSentinel/1.0'
+                        }
+                    }
+                );
+                
+                if (!response.ok) throw new Error('Geocoding failed');
+                
+                const data = await response.json();
+                const address = data.address || {};
+                
+                // Extract water body information
+                const waterBody = address.ocean || address.sea || address.water || address.bay || address.strait || null;
+                const state = address.state || address.region || null;
+                const country = address.country || null;
+                
+                // Build region string
+                let regionParts = [];
+                if (waterBody) regionParts.push(waterBody);
+                if (state && !waterBody) regionParts.push(state);
+                if (country) regionParts.push(country);
+                
+                const regionString = regionParts.length > 0 ? regionParts.join(', ') : 'Region detected';
+                
+                locationData.region = waterBody || state || 'Unknown';
+                locationData.country = country;
+                locationData.fullAddress = regionString;
+                
+                regionName.textContent = `🌊 Region Identified: ${regionString}`;
+                regionItem.style.display = 'flex';
+                
+            } catch (error) {
+                console.error('Reverse geocoding error:', error);
+                regionName.textContent = '🌊 Region: Could not identify (will use coordinates)';
+                regionItem.style.display = 'flex';
+                locationData.region = 'Unknown';
+            }
+        }
+
+        function showLocationError(message) {
+            document.getElementById('locationErrorText').textContent = message;
+            locationError.style.display = 'flex';
+        }
+
+        function checkScanReady() {
+            const isReady = uploadedImage && locationData.latitude !== null;
+            scanBtn.disabled = !isReady;
+        }
+
+        // Scan Species
+        scanBtn.addEventListener('click', scanSpecies);
+
+        async function scanSpecies() {
+            if (!uploadedImage || locationData.latitude === null) {
+                alert('Please upload an image and detect your location first.');
+                return;
+            }
+
+            // Show loading overlay
+            scanLoadingOverlay.style.display = 'flex';
+            scanBtn.querySelector('.scan-btn-text').style.display = 'none';
+            scanBtn.querySelector('.scan-btn-loading').style.display = 'flex';
+
+            try {
+                const response = await fetch('/api/scan', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        image: uploadedImage,
+                        latitude: locationData.latitude,
+                        longitude: locationData.longitude,
+                        region: locationData.region,
+                        country: locationData.country,
+                        fullAddress: locationData.fullAddress
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Store result and redirect to report page
+                    sessionStorage.setItem('scanResult', JSON.stringify(data.result));
+                    sessionStorage.setItem('uploadedImage', uploadedImage);
+                    window.location.href = '/report';
+                } else {
+                    throw new Error(data.error || 'Scan failed');
+                }
+            } catch (error) {
+                console.error('Scan error:', error);
+                alert('An error occurred during scanning. Please try again.');
+                scanLoadingOverlay.style.display = 'none';
+                scanBtn.querySelector('.scan-btn-text').style.display = 'flex';
+                scanBtn.querySelector('.scan-btn-loading').style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>

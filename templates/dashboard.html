@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - AquaSentinel</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="dashboard-page">
+    <!-- Background Video -->
+    <div class="video-container">
+        <video autoplay muted loop class="background-video">
+            <source src="{{ url_for('static', filename='assets/bg video 1.mp4') }}" type="video/mp4">
+            Your browser does not support HTML5 video.
+        </video>
+        <!-- Dark blue overlay gradient -->
+        <div class="video-overlay"></div>
+    </div>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <!-- Left side: Logo and brand -->
+            <div class="navbar-brand">
+                <span class="trident-icon">🔱</span>
+                <span class="brand-name">AquaSentinel</span>
+            </div>
+
+            <!-- Right side: User info and logout -->
+            <div class="navbar-menu">
+                <div class="user-info">
+                    <i class="fas fa-user-circle"></i>
+                    <span>{{ username }}</span>
+                </div>
+                <a href="{{ url_for('signout') }}" class="btn-signout">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Sign Out
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Dashboard Hero Section -->
+    <section class="dashboard-hero">
+        <div class="dashboard-content">
+            <!-- Hero Text -->
+            <h1 class="dashboard-title">Welcome to Your Ocean Explorer</h1>
+            <p class="dashboard-subtitle">
+                Discover, identify, and track marine species with the power of AI. 
+                Your journey into the depths begins here.
+            </p>
+
+            <!-- CTA Cards Container -->
+            <div class="cta-cards">
+                <!-- CTA 1: Upload Image of Species -->
+                <a href="{{ url_for('scan') }}" class="cta-card">
+                    <div class="cta-icon">
+                        <i class="fas fa-camera"></i>
+                    </div>
+                    <h3 class="cta-title">Upload Species Image</h3>
+                    <p class="cta-description">
+                        Capture and upload photos of marine life for instant AI-powered identification
+                    </p>
+                    <div class="cta-arrow">
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+                </a>
+
+                <!-- CTA 2: Explore Species -->
+                <a href="#explore" class="cta-card">
+                    <div class="cta-icon">
+                        <i class="fas fa-fish"></i>
+                    </div>
+                    <h3 class="cta-title">Explore Species</h3>
+                    <p class="cta-description">
+                        Browse our extensive database of marine species and learn about ocean biodiversity
+                    </p>
+                    <div class="cta-arrow">
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+                </a>
+
+                <!-- CTA 3: Recently Scanned -->
+                <a href="{{ url_for('recent_scans') }}" class="cta-card">
+                    <div class="cta-icon">
+                        <i class="fas fa-history"></i>
+                    </div>
+                    <h3 class="cta-title">Recently Scanned</h3>
+                    <p class="cta-description">
+                        View your scanning history and revisit previously identified marine creatures
+                    </p>
+                    <div class="cta-arrow">
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Ocean Stats Section -->
+    <section class="ocean-stats">
+        <div class="stats-container">
+            <div class="stat-item">
+                <i class="fas fa-water"></i>
+                <span class="stat-number">10,000+</span>
+                <span class="stat-label">Species in Database</span>
+            </div>
+            <div class="stat-item">
+                <i class="fas fa-camera-retro"></i>
+                <span class="stat-number">50,000+</span>
+                <span class="stat-label">Images Analyzed</span>
+            </div>
+            <div class="stat-item">
+                <i class="fas fa-globe-americas"></i>
+                <span class="stat-number">120+</span>
+                <span class="stat-label">Ocean Regions</span>
+            </div>
+        </div>
+    </section>
+</body>
+</html>

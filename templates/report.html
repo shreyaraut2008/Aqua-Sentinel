@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scan Report - AquaSentinel</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="report-page">
+    <!-- Background Video -->
+    <div class="video-container">
+        <video autoplay muted loop class="background-video">
+            <source src="{{ url_for('static', filename='assets/bg video 1.mp4') }}" type="video/mp4">
+            Your browser does not support HTML5 video.
+        </video>
+        <div class="video-overlay"></div>
+    </div>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="{{ url_for('dashboard') }}" class="navbar-brand">
+                <span class="trident-icon">🔱</span>
+                <span class="brand-name">AquaSentinel</span>
+            </a>
+            <div class="navbar-menu">
+                <a href="{{ url_for('dashboard') }}" class="nav-link">
+                    <i class="fas fa-home"></i> Dashboard
+                </a>
+                <div class="user-info">
+                    <i class="fas fa-user-circle"></i>
+                    <span>{{ username }}</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Report Section -->
+    <section class="report-section">
+        <div class="report-container">
+            <!-- Report Header -->
+            <div class="report-header">
+                <div class="report-badge">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Species Identified</span>
+                </div>
+                <h1 class="report-title">Scan Report</h1>
+            </div>
+
+            <!-- Report Card -->
+            <div class="report-card">
+                <!-- Left: Image Section -->
+                <div class="report-image-section">
+                    <div class="report-image-container">
+                        <img id="reportImage" src="" alt="Scanned Species">
+                    </div>
+                    <div class="image-label">
+                        <i class="fas fa-camera"></i>
+                        Uploaded Image
+                    </div>
+                </div>
+
+                <!-- Right: Details Section -->
+                <div class="report-details-section">
+                    <!-- Species Name -->
+                    <div class="species-header">
+                        <h2 class="species-name" id="speciesName">Loading...</h2>
+                        <p class="scientific-name" id="scientificName">Loading...</p>
+                    </div>
+
+                    <!-- Stats Grid -->
+                    <div class="stats-grid">
+                        <!-- Confidence -->
+                        <div class="stat-card confidence">
+                            <div class="stat-icon">
+                                <i class="fas fa-percentage"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-label">Confidence</span>
+                                <span class="stat-value" id="confidence">--</span>
+                            </div>
+                        </div>
+
+                        <!-- Rarity -->
+                        <div class="stat-card rarity">
+                            <div class="stat-icon">
+                                <i class="fas fa-gem"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-label">Rarity</span>
+                                <span class="stat-value" id="rarity">--</span>
+                            </div>
+                        </div>
+
+                        <!-- Danger Level -->
+                        <div class="stat-card danger">
+                            <div class="stat-icon">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-label">Danger Level</span>
+                                <span class="stat-value" id="dangerLevel">--</span>
+                            </div>
+                        </div>
+
+                        <!-- Habitat Match -->
+                        <div class="stat-card habitat">
+                            <div class="stat-icon">
+                                <i class="fas fa-map-marked-alt"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-label">Habitat Match</span>
+                                <span class="stat-value" id="habitatMatch">--</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Conservation Status -->
+                    <div class="conservation-status" id="conservationStatus">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>Conservation Status: <strong id="conservationValue">Loading...</strong></span>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="species-description">
+                        <h3><i class="fas fa-info-circle"></i> About This Species</h3>
+                        <p id="speciesDescription">Loading description...</p>
+                    </div>
+
+                    <!-- Location Info -->
+                    <div class="location-info">
+                        <h3><i class="fas fa-globe-americas"></i> Detection Location</h3>
+                        <p id="detectionLocation">Loading...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Disclaimer -->
+            <div class="report-disclaimer">
+                <i class="fas fa-info-circle"></i>
+                <p><strong>Disclaimer:</strong> AI identification may not be 100% accurate. For critical decisions, please consult with marine biology experts.</p>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="report-actions">
+                <a href="{{ url_for('scan') }}" class="action-btn primary">
+                    <i class="fas fa-camera"></i>
+                    Scan New Species
+                </a>
+                <button type="button" class="action-btn secondary" id="saveScanBtn">
+                    <i class="fas fa-save"></i>
+                    Save Scan
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Get data from session storage
+            const resultData = sessionStorage.getItem('scanResult');
+            const uploadedImage = sessionStorage.getItem('uploadedImage');
+
+            if (!resultData || !uploadedImage) {
+                alert('No scan data found. Redirecting to scan page.');
+                window.location.href = '/scan';
+                return;
+            }
+
+            const result = JSON.parse(resultData);
+
+            // Populate the report
+            document.getElementById('reportImage').src = uploadedImage;
+            document.getElementById('speciesName').textContent = result.species_name || 'Unknown Species';
+            document.getElementById('scientificName').textContent = result.scientific_name || 'Scientific name not available';
+            document.getElementById('confidence').textContent = result.confidence || '--';
+            document.getElementById('rarity').textContent = result.rarity || '--';
+            document.getElementById('dangerLevel').textContent = result.danger_level || '--';
+            document.getElementById('habitatMatch').textContent = result.habitat_match || '--';
+            document.getElementById('conservationValue').textContent = result.conservation_status || 'Unknown';
+            document.getElementById('speciesDescription').textContent = result.description || 'No description available.';
+            document.getElementById('detectionLocation').textContent = result.location || 'Location not available';
+
+            // Add color classes based on values
+            const rarityEl = document.getElementById('rarity');
+            const rarity = (result.rarity || '').toLowerCase();
+            if (rarity.includes('rare')) {
+                rarityEl.classList.add('rare');
+            } else if (rarity.includes('endangered')) {
+                rarityEl.classList.add('endangered');
+            } else {
+                rarityEl.classList.add('common');
+            }
+
+            const dangerEl = document.getElementById('dangerLevel');
+            const danger = (result.danger_level || '').toLowerCase();
+            if (danger.includes('high') || danger.includes('dangerous')) {
+                dangerEl.classList.add('high-danger');
+            } else if (danger.includes('moderate') || danger.includes('medium')) {
+                dangerEl.classList.add('medium-danger');
+            } else {
+                dangerEl.classList.add('low-danger');
+            }
+
+            const conservationEl = document.getElementById('conservationStatus');
+            const conservation = (result.conservation_status || '').toLowerCase();
+            if (conservation.includes('endangered') || conservation.includes('critical')) {
+                conservationEl.classList.add('endangered');
+            } else if (conservation.includes('vulnerable') || conservation.includes('threatened')) {
+                conservationEl.classList.add('vulnerable');
+            } else {
+                conservationEl.classList.add('safe');
+            }
+
+            // Save scan button
+            document.getElementById('saveScanBtn').addEventListener('click', async () => {
+                try {
+                    const response = await fetch('/api/save-scan', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            image: uploadedImage,
+                            result: result
+                        })
+                    });
+
+                    const data = await response.json();
+                    if (data.success) {
+                        alert('Scan saved successfully!');
+                        document.getElementById('saveScanBtn').innerHTML = '<i class="fas fa-check"></i> Saved';
+                        document.getElementById('saveScanBtn').disabled = true;
+                    } else {
+                        alert('Failed to save scan: ' + (data.error || 'Unknown error'));
+                    }
+                } catch (error) {
+                    console.error('Save error:', error);
+                    alert('An error occurred while saving the scan.');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
