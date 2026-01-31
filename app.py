@@ -13,14 +13,24 @@ app = Flask(__name__,
             static_folder='static',
             static_url_path='/static')
 
-# Configuration
-app.config['SECRET_KEY'] = 'aqua-sentinel-secret-key-2024'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///auth.db'
+# Configuration - use environment variables on Render
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'aqua-sentinel-secret-key-dev-only')
+database_url = os.environ.get('DATABASE_URL')
+if database_url:
+    # Render PostgreSQL uses "postgres://" but SQLAlchemy 1.4+ expects "postgresql://"
+    if database_url.startswith('postgres://'):
+        database_url = database_url.replace('postgres://', 'postgresql://', 1)
+    app.config['SQLALCHEMY_DATABASE_URI'] = database_url
+else:
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///auth.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# Gemini API Configuration
-GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', 'YOUR_GEMINI_API_KEY')
-genai.configure(api_key=GEMINI_API_KEY)
+# Gemini API Configuration - set GEMINI_API_KEY in Render Environment
+GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY')
+if GEMINI_API_KEY:
+    genai.configure(api_key=GEMINI_API_KEY)
+else:
+    genai.configure(api_key='')  # Will fail on scan if not set
 
 # Initialize database
 db = SQLAlchemy(app)
@@ -346,10 +356,7 @@ def internal_error(error):
     return jsonify({'error': 'Internal server error'}), 500
 
 if __name__ == '__main__':
-    # Run the app in debug mode for development
-    # Set debug=False and use a production server for production
-    app.run(
-        host='0.0.0.0',
-        port=5000,
-        debug=True
-    )
+    # Development: python app.py. Production: use gunicorn (see Render)
+    port = int(os.environ.get('PORT', 5000))
+    debug = os.environ.get('FLASK_ENV') != 'production'
+    app.run(host='0.0.0.0', port=port, debug=debug)

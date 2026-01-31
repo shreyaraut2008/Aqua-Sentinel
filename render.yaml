@@ -1,0 +1,25 @@
+# Render Blueprint - AquaSentinel
+# Docs: https://render.com/docs/blueprint-spec
+
+services:
+  - type: web
+    name: aquasentinel
+    runtime: python
+    region: oregon
+
+    # If your app is in a subfolder (e.g. Aqua-Sentinel), set root directory in Dashboard to that folder
+    # or uncomment and set planKey if using a monorepo:
+    # plan: free
+
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11.0"
+      - key: SECRET_KEY
+        generateValue: true
+      # Add GEMINI_API_KEY in Render Dashboard → Environment (see DEPLOY.md)
+
+    # Optional: add a PostgreSQL database for persistent users & scans (free tier)
+    # In Dashboard: New → PostgreSQL, then add DATABASE_URL to Environment
