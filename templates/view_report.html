@@ -137,8 +137,21 @@
 
                     <!-- Description -->
                     <div class="species-description">
-                        <h3><i class="fas fa-info-circle"></i> About This Species</h3>
-                        <p>{{ scan.description or 'No description available.' }}</p>
+                        <div class="description-header">
+                            <h3><i class="fas fa-info-circle"></i> About This Species</h3>
+                            <div class="speech-controls">
+                                <button type="button" class="speech-btn listen-btn listen-desc-btn" title="Read description aloud">
+                                    <i class="fas fa-volume-up"></i>
+                                    <span>Listen</span>
+                                </button>
+                                <button type="button" class="speech-btn dictate-btn dictate-desc-btn" title="Dictate to add or edit description">
+                                    <i class="fas fa-microphone"></i>
+                                    <span>Dictate</span>
+                                </button>
+                                <span class="speech-status desc-speech-status"></span>
+                            </div>
+                        </div>
+                        <p class="desc-text">{{ scan.description or 'No description available.' }}</p>
                     </div>
 
                     <!-- Location Info -->
@@ -175,6 +188,66 @@
         </div>
     </section>
 
+    <script>
+        (function() {
+            const descEl = document.querySelector('.desc-text');
+            const listenBtn = document.querySelector('.listen-desc-btn');
+            const dictateBtn = document.querySelector('.dictate-desc-btn');
+            const statusEl = document.querySelector('.desc-speech-status');
+            if (!descEl || !listenBtn) return;
+
+            const synthesis = window.speechSynthesis;
+            let recognition = null;
+            let isListening = false;
+
+            listenBtn.addEventListener('click', function() {
+                if (synthesis.speaking) {
+                    synthesis.cancel();
+                    statusEl.textContent = '';
+                    listenBtn.classList.remove('active');
+                    return;
+                }
+                const text = descEl.textContent || '';
+                if (!text) return;
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.rate = 0.95;
+                utterance.onstart = function() { statusEl.textContent = 'Reading...'; listenBtn.classList.add('active'); };
+                utterance.onend = function() { statusEl.textContent = ''; listenBtn.classList.remove('active'); };
+                synthesis.speak(utterance);
+            });
+
+            dictateBtn.addEventListener('click', function() {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                if (!SpeechRecognition) {
+                    statusEl.textContent = 'Speech recognition not supported.';
+                    return;
+                }
+                if (isListening && recognition) {
+                    recognition.stop();
+                    dictateBtn.classList.remove('active');
+                    statusEl.textContent = '';
+                    isListening = false;
+                    return;
+                }
+                recognition = new SpeechRecognition();
+                recognition.continuous = true;
+                recognition.interimResults = true;
+                recognition.lang = 'en-US';
+                recognition.onstart = function() { isListening = true; statusEl.textContent = 'Listening...'; dictateBtn.classList.add('active'); };
+                recognition.onresult = function(event) {
+                    var final = '';
+                    for (var i = event.resultIndex; i < event.results.length; i++) {
+                        if (event.results[i].isFinal) final += event.results[i][0].transcript;
+                    }
+                    if (final) descEl.textContent = (descEl.textContent.trim() + ' ' + final).trim();
+                };
+                recognition.onend = function() { isListening = false; dictateBtn.classList.remove('active'); if (statusEl.textContent === 'Listening...') statusEl.textContent = ''; };
+                recognition.onerror = function(e) { isListening = false; dictateBtn.classList.remove('active'); statusEl.textContent = e.error === 'no-speech' ? '' : e.error; };
+                recognition.start();
+            });
+        })();
+    </script>
+
     <style>
         .scan-date {
             display: flex;
@@ -190,6 +263,12 @@
         .scan-date i {
             color: var(--primary-aqua);
         }
+        .description-header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.75rem; margin-bottom: 0.75rem; }
+        .speech-controls { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+        .speech-btn { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.5rem 0.9rem; background: rgba(0, 217, 255, 0.15); border: 1px solid rgba(0, 217, 255, 0.3); border-radius: 8px; color: var(--primary-aqua); font-size: 0.85rem; cursor: pointer; transition: all 0.2s ease; }
+        .speech-btn:hover { background: rgba(0, 217, 255, 0.25); }
+        .speech-btn.active { background: rgba(0, 217, 255, 0.3); }
+        .speech-status { font-size: 0.8rem; color: var(--text-light); opacity: 0.8; }
     </style>
 </body>
 </html>
