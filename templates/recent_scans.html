@@ -46,18 +46,40 @@
         }
 
         .scan-card-item {
+            display: block;
+            text-decoration: none;
             background: rgba(10, 22, 40, 0.85);
             backdrop-filter: blur(15px);
             border-radius: 20px;
             overflow: hidden;
             border: 1px solid rgba(0, 217, 255, 0.15);
             transition: all 0.3s ease;
+            cursor: pointer;
         }
 
         .scan-card-item:hover {
             transform: translateY(-5px);
             border-color: rgba(0, 217, 255, 0.4);
             box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4), 0 0 40px rgba(0, 217, 255, 0.15);
+        }
+        
+        .view-report-hint {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(0, 217, 255, 0.1);
+            color: var(--primary-aqua);
+            font-size: 0.85rem;
+            font-weight: 500;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .scan-card-item:hover .view-report-hint {
+            opacity: 1;
         }
 
         .scan-card-image {
@@ -260,7 +282,7 @@
             {% if scans %}
             <div class="scans-grid">
                 {% for scan in scans %}
-                <div class="scan-card-item">
+                <a href="{{ url_for('view_scan_report', scan_id=scan.id) }}" class="scan-card-item">
                     {% if scan.image_data %}
                     <img src="{{ scan.image_data }}" alt="{{ scan.species_name }}" class="scan-card-image">
                     {% else %}
@@ -304,8 +326,13 @@
                             <i class="fas fa-clock"></i>
                             {{ scan.scanned_at.strftime('%b %d, %Y at %I:%M %p') }}
                         </div>
+                        
+                        <div class="view-report-hint">
+                            <i class="fas fa-eye"></i>
+                            Click to view full report
+                        </div>
                     </div>
-                </div>
+                </a>
                 {% endfor %}
             </div>
             {% else %}

@@ -229,15 +229,11 @@ html, body {
 .hero-title {
     font-size: clamp(2.5rem, 8vw, 5rem);
     font-weight: 800;
-    color: var(--text-white);
+    color: #ffffff;
     line-height: 1.2;
     margin-bottom: 1.5rem;
     letter-spacing: -1px;
-    text-shadow: 0 2px 20px rgba(0, 0, 0, 0.5);
-    background: linear-gradient(135deg, var(--text-white) 0%, var(--secondary-aqua) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    text-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
 }
 
 .hero-subtitle {

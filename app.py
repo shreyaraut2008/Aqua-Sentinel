@@ -269,51 +269,50 @@ If you cannot identify a marine species in the image, respond with:
         result['latitude'] = latitude
         result['longitude'] = longitude
         
+        # Auto-save the scan to database
+        try:
+            scan = ScanHistory(
+                user_id=session.get('user_id'),
+                species_name=result.get('species_name', 'Unknown'),
+                scientific_name=result.get('scientific_name', ''),
+                confidence=result.get('confidence', ''),
+                rarity=result.get('rarity', ''),
+                danger_level=result.get('danger_level', ''),
+                habitat_match=result.get('habitat_match', ''),
+                conservation_status=result.get('conservation_status', ''),
+                description=result.get('description', ''),
+                location=result.get('location', ''),
+                latitude=latitude,
+                longitude=longitude,
+                image_data=image_data[:500000] if image_data else None
+            )
+            db.session.add(scan)
+            db.session.commit()
+            result['scan_id'] = scan.id
+        except Exception as save_error:
+            print(f"Auto-save error: {str(save_error)}")
+            db.session.rollback()
+        
         return jsonify({'success': True, 'result': result})
         
     except Exception as e:
         print(f"Scan error: {str(e)}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
-@app.route('/api/save-scan', methods=['POST'])
+@app.route('/scan-report/<int:scan_id>')
 @login_required
-def api_save_scan():
-    """Save scan to user's history"""
-    try:
-        data = request.get_json()
-        
-        if not data:
-            return jsonify({'success': False, 'error': 'No data provided'}), 400
-        
-        image_data = data.get('image', '')
-        result = data.get('result', {})
-        
-        # Create scan history entry
-        scan = ScanHistory(
-            user_id=session.get('user_id'),
-            species_name=result.get('species_name', 'Unknown'),
-            scientific_name=result.get('scientific_name', ''),
-            confidence=result.get('confidence', ''),
-            rarity=result.get('rarity', ''),
-            danger_level=result.get('danger_level', ''),
-            habitat_match=result.get('habitat_match', ''),
-            conservation_status=result.get('conservation_status', ''),
-            description=result.get('description', ''),
-            location=result.get('location', ''),
-            latitude=result.get('latitude'),
-            longitude=result.get('longitude'),
-            image_data=image_data[:500000] if image_data else None  # Limit size
-        )
-        
-        db.session.add(scan)
-        db.session.commit()
-        
-        return jsonify({'success': True, 'scan_id': scan.id})
-        
-    except Exception as e:
-        print(f"Save scan error: {str(e)}")
-        db.session.rollback()
-        return jsonify({'success': False, 'error': str(e)}), 500
+def view_scan_report(scan_id):
+    """View a specific saved scan report"""
+    username = session.get('username', 'Explorer')
+    user_id = session.get('user_id')
+    
+    scan = ScanHistory.query.filter_by(id=scan_id, user_id=user_id).first()
+    
+    if not scan:
+        flash('Scan not found.', 'error')
+        return redirect(url_for('recent_scans'))
+    
+    return render_template('view_report.html', username=username, scan=scan)
 
 @app.route('/recent-scans')
 @login_required

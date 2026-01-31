@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scan Report - AquaSentinel</title>
+    <title>{{ scan.species_name }} - AquaSentinel Report</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -25,6 +25,9 @@
                 <span class="brand-name">AquaSentinel</span>
             </a>
             <div class="navbar-menu">
+                <a href="{{ url_for('recent_scans') }}" class="nav-link">
+                    <i class="fas fa-history"></i> Recent Scans
+                </a>
                 <a href="{{ url_for('dashboard') }}" class="nav-link">
                     <i class="fas fa-home"></i> Dashboard
                 </a>
@@ -43,9 +46,13 @@
             <div class="report-header">
                 <div class="report-badge">
                     <i class="fas fa-check-circle"></i>
-                    <span>Species Identified</span>
+                    <span>Saved Scan</span>
                 </div>
                 <h1 class="report-title">Scan Report</h1>
+                <p class="scan-date">
+                    <i class="fas fa-calendar-alt"></i>
+                    Scanned on {{ scan.scanned_at.strftime('%B %d, %Y at %I:%M %p') }}
+                </p>
             </div>
 
             <!-- Report Card -->
@@ -53,11 +60,17 @@
                 <!-- Left: Image Section -->
                 <div class="report-image-section">
                     <div class="report-image-container">
-                        <img id="reportImage" src="" alt="Scanned Species">
+                        {% if scan.image_data %}
+                        <img src="{{ scan.image_data }}" alt="{{ scan.species_name }}">
+                        {% else %}
+                        <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, rgba(0, 217, 255, 0.2), rgba(0, 100, 150, 0.3));">
+                            <i class="fas fa-fish" style="font-size: 4rem; color: var(--primary-aqua); opacity: 0.5;"></i>
+                        </div>
+                        {% endif %}
                     </div>
                     <div class="image-label">
                         <i class="fas fa-camera"></i>
-                        Uploaded Image
+                        Scanned Image
                     </div>
                 </div>
 
@@ -65,8 +78,8 @@
                 <div class="report-details-section">
                     <!-- Species Name -->
                     <div class="species-header">
-                        <h2 class="species-name" id="speciesName">Loading...</h2>
-                        <p class="scientific-name" id="scientificName">Loading...</p>
+                        <h2 class="species-name">{{ scan.species_name }}</h2>
+                        <p class="scientific-name">{{ scan.scientific_name or 'Scientific name not available' }}</p>
                     </div>
 
                     <!-- Stats Grid -->
@@ -78,7 +91,7 @@
                             </div>
                             <div class="stat-info">
                                 <span class="stat-label">Confidence</span>
-                                <span class="stat-value" id="confidence">--</span>
+                                <span class="stat-value">{{ scan.confidence or '--' }}</span>
                             </div>
                         </div>
 
@@ -89,7 +102,7 @@
                             </div>
                             <div class="stat-info">
                                 <span class="stat-label">Rarity</span>
-                                <span class="stat-value" id="rarity">--</span>
+                                <span class="stat-value {% if 'rare' in (scan.rarity or '').lower() %}rare{% elif 'endangered' in (scan.rarity or '').lower() %}endangered{% else %}common{% endif %}">{{ scan.rarity or '--' }}</span>
                             </div>
                         </div>
 
@@ -100,7 +113,7 @@
                             </div>
                             <div class="stat-info">
                                 <span class="stat-label">Danger Level</span>
-                                <span class="stat-value" id="dangerLevel">--</span>
+                                <span class="stat-value {% if 'high' in (scan.danger_level or '').lower() or 'dangerous' in (scan.danger_level or '').lower() %}high-danger{% elif 'moderate' in (scan.danger_level or '').lower() or 'medium' in (scan.danger_level or '').lower() %}medium-danger{% else %}low-danger{% endif %}">{{ scan.danger_level or '--' }}</span>
                             </div>
                         </div>
 
@@ -111,27 +124,33 @@
                             </div>
                             <div class="stat-info">
                                 <span class="stat-label">Habitat Match</span>
-                                <span class="stat-value" id="habitatMatch">--</span>
+                                <span class="stat-value">{{ scan.habitat_match or '--' }}</span>
                             </div>
                         </div>
                     </div>
 
                     <!-- Conservation Status -->
-                    <div class="conservation-status" id="conservationStatus">
+                    <div class="conservation-status {% if 'endangered' in (scan.conservation_status or '').lower() or 'critical' in (scan.conservation_status or '').lower() %}endangered{% elif 'vulnerable' in (scan.conservation_status or '').lower() or 'threatened' in (scan.conservation_status or '').lower() %}vulnerable{% else %}safe{% endif %}">
                         <i class="fas fa-shield-alt"></i>
-                        <span>Conservation Status: <strong id="conservationValue">Loading...</strong></span>
+                        <span>Conservation Status: <strong>{{ scan.conservation_status or 'Unknown' }}</strong></span>
                     </div>
 
                     <!-- Description -->
                     <div class="species-description">
                         <h3><i class="fas fa-info-circle"></i> About This Species</h3>
-                        <p id="speciesDescription">Loading description...</p>
+                        <p>{{ scan.description or 'No description available.' }}</p>
                     </div>
 
                     <!-- Location Info -->
                     <div class="location-info">
                         <h3><i class="fas fa-globe-americas"></i> Detection Location</h3>
-                        <p id="detectionLocation">Loading...</p>
+                        <p>{{ scan.location or 'Location not available' }}</p>
+                        {% if scan.latitude and scan.longitude %}
+                        <p style="font-size: 0.85rem; opacity: 0.7; margin-top: 0.5rem;">
+                            <i class="fas fa-map-pin" style="color: var(--primary-aqua);"></i>
+                            Coordinates: {{ "%.4f"|format(scan.latitude) }}°, {{ "%.4f"|format(scan.longitude) }}°
+                        </p>
+                        {% endif %}
                     </div>
                 </div>
             </div>
@@ -140,12 +159,6 @@
             <div class="report-disclaimer">
                 <i class="fas fa-info-circle"></i>
                 <p><strong>Disclaimer:</strong> AI identification may not be 100% accurate. For critical decisions, please consult with marine biology experts.</p>
-            </div>
-
-            <!-- Auto-saved notice -->
-            <div class="auto-saved-notice" id="autoSavedNotice">
-                <i class="fas fa-check-circle"></i>
-                <span>This scan has been automatically saved to your history</span>
             </div>
 
             <!-- Action Buttons -->
@@ -162,87 +175,20 @@
         </div>
     </section>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // Get data from session storage
-            const resultData = sessionStorage.getItem('scanResult');
-            const uploadedImage = sessionStorage.getItem('uploadedImage');
-
-            if (!resultData || !uploadedImage) {
-                alert('No scan data found. Redirecting to scan page.');
-                window.location.href = '/scan';
-                return;
-            }
-
-            const result = JSON.parse(resultData);
-
-            // Populate the report
-            document.getElementById('reportImage').src = uploadedImage;
-            document.getElementById('speciesName').textContent = result.species_name || 'Unknown Species';
-            document.getElementById('scientificName').textContent = result.scientific_name || 'Scientific name not available';
-            document.getElementById('confidence').textContent = result.confidence || '--';
-            document.getElementById('rarity').textContent = result.rarity || '--';
-            document.getElementById('dangerLevel').textContent = result.danger_level || '--';
-            document.getElementById('habitatMatch').textContent = result.habitat_match || '--';
-            document.getElementById('conservationValue').textContent = result.conservation_status || 'Unknown';
-            document.getElementById('speciesDescription').textContent = result.description || 'No description available.';
-            document.getElementById('detectionLocation').textContent = result.location || 'Location not available';
-
-            // Add color classes based on values
-            const rarityEl = document.getElementById('rarity');
-            const rarity = (result.rarity || '').toLowerCase();
-            if (rarity.includes('rare')) {
-                rarityEl.classList.add('rare');
-            } else if (rarity.includes('endangered')) {
-                rarityEl.classList.add('endangered');
-            } else {
-                rarityEl.classList.add('common');
-            }
-
-            const dangerEl = document.getElementById('dangerLevel');
-            const danger = (result.danger_level || '').toLowerCase();
-            if (danger.includes('high') || danger.includes('dangerous')) {
-                dangerEl.classList.add('high-danger');
-            } else if (danger.includes('moderate') || danger.includes('medium')) {
-                dangerEl.classList.add('medium-danger');
-            } else {
-                dangerEl.classList.add('low-danger');
-            }
-
-            const conservationEl = document.getElementById('conservationStatus');
-            const conservation = (result.conservation_status || '').toLowerCase();
-            if (conservation.includes('endangered') || conservation.includes('critical')) {
-                conservationEl.classList.add('endangered');
-            } else if (conservation.includes('vulnerable') || conservation.includes('threatened')) {
-                conservationEl.classList.add('vulnerable');
-            } else {
-                conservationEl.classList.add('safe');
-            }
-
-            // Show auto-saved notice if scan was saved
-            if (result.scan_id) {
-                document.getElementById('autoSavedNotice').style.display = 'flex';
-            }
-        });
-    </script>
-
     <style>
-        .auto-saved-notice {
-            display: none;
+        .scan-date {
+            display: flex;
             align-items: center;
             justify-content: center;
-            gap: 0.75rem;
-            margin-top: 1.5rem;
-            padding: 1rem 1.5rem;
-            background: rgba(0, 200, 150, 0.15);
-            border-radius: 12px;
-            border: 1px solid rgba(0, 200, 150, 0.4);
-            color: #00c896;
+            gap: 0.5rem;
+            color: var(--text-light);
             font-size: 0.95rem;
+            margin-top: 0.75rem;
+            opacity: 0.8;
         }
         
-        .auto-saved-notice i {
-            font-size: 1.2rem;
+        .scan-date i {
+            color: var(--primary-aqua);
         }
     </style>
 </body>
