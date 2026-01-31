@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us - AquaSentinel</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #fff;
+            overflow-x: hidden;
+            background: #001a33;
+        }
+
+        /* UNDERWATER OCEAN BACKGROUND */
+        .ocean-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: linear-gradient(to bottom, 
+                #1a4d6d 0%,
+                #0d2f47 20%,
+                #08203a 40%,
+                #051829 60%,
+                #021220 80%,
+                #000a15 100%);
+            overflow: hidden;
+        }
+
+        /* Sunlight rays coming through water */
+        .sunlight-rays {
+            position: absolute;
+            top: -100px;
+            left: -10%;
+            width: 120%;
+            height: 150%;
+            background: 
+                linear-gradient(165deg, 
+                    transparent 30%, 
+                    rgba(0, 232, 255, 0.04) 40%, 
+                    rgba(100, 200, 255, 0.07) 45%, 
+                    rgba(0, 232, 255, 0.05) 50%, 
+                    transparent 60%),
+                linear-gradient(145deg, 
+                    transparent 35%, 
+                    rgba(100, 200, 255, 0.03) 42%, 
+                    rgba(0, 200, 255, 0.06) 48%, 
+                    rgba(100, 220, 255, 0.04) 53%, 
+                    transparent 62%);
+            animation: water-rays 20s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        @keyframes water-rays {
+            0%, 100% { 
+                transform: translateX(-5%) rotate(-2deg); 
+                opacity: 0.7;
+            }
+            50% { 
+                transform: translateX(5%) rotate(2deg); 
+                opacity: 0.9;
+            }
+        }
+
+        /* Floating bubbles */
+        .bubbles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .bubble {
+            position: absolute;
+            bottom: -100px;
+            background: radial-gradient(circle at 30% 30%, 
+                rgba(255, 255, 255, 0.4), 
+                rgba(100, 200, 255, 0.1));
+            border-radius: 50%;
+            opacity: 0.6;
+            animation: bubble-rise 15s infinite ease-in;
+            box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.3);
+        }
+
+        @keyframes bubble-rise {
+            0% {
+                transform: translateY(0) translateX(0) scale(0.5);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.6;
+            }
+            90% {
+                opacity: 0.3;
+            }
+            100% {
+                transform: translateY(-120vh) translateX(100px) scale(1);
+                opacity: 0;
+            }
+        }
+
+        /* Underwater particles */
+        .particles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+
+        .particle {
+            position: absolute;
+            background: rgba(200, 230, 255, 0.4);
+            border-radius: 50%;
+            animation: drift 25s infinite;
+        }
+
+        @keyframes drift {
+            0% {
+                transform: translate(0, 100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.5;
+            }
+            90% {
+                opacity: 0.3;
+            }
+            100% {
+                transform: translate(50px, -20vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Fish silhouettes */
+        .fish-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .fish {
+            position: absolute;
+            opacity: 0.15;
+            animation: swim 30s infinite linear;
+        }
+
+        @keyframes swim {
+            0% {
+                transform: translateX(-100px) scaleX(1);
+            }
+            48% {
+                transform: translateX(calc(100vw + 100px)) scaleX(1);
+            }
+            50% {
+                transform: translateX(calc(100vw + 100px)) scaleX(-1);
+            }
+            98% {
+                transform: translateX(-100px) scaleX(-1);
+            }
+            100% {
+                transform: translateX(-100px) scaleX(1);
+            }
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            background: rgba(0, 26, 51, 0.7);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(0, 232, 255, 0.2);
+            padding: 20px 0;
+        }
+
+        nav .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #00E8FF;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: rgba(255, 255, 255, 0.85);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: #00E8FF;
+        }
+
+        .nav-links a.active {
+            color: #00E8FF;
+        }
+
+        /* Main container */
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Hero Section */
+        .hero-section {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 150px 20px 100px;
+        }
+
+        .hero-glass {
+            background: rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(25px);
+            border: 1px solid rgba(0, 232, 255, 0.2);
+            border-radius: 30px;
+            padding: 60px 50px;
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            max-width: 900px;
+            animation: fade-in-up 1s ease-out;
+        }
+
+        @keyframes fade-in-up {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            font-size: 3.8rem;
+            font-weight: 700;
+            margin-bottom: 25px;
+            color: #00E8FF;
+            text-shadow: 0 0 30px rgba(0, 232, 255, 0.5);
+        }
+
+        .hero-subtitle {
+            font-size: 1.4rem;
+            color: rgba(255, 255, 255, 0.85);
+            line-height: 1.7;
+            margin-bottom: 20px;
+        }
+
+        .hero-tagline {
+            font-size: 1.1rem;
+            color: rgba(0, 232, 255, 0.9);
+            font-style: italic;
+            margin-top: 15px;
+        }
+
+        /* Content Sections */
+        .content-section {
+            padding: 100px 0;
+        }
+
+        .section-card {
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 232, 255, 0.2);
+            border-radius: 25px;
+            padding: 60px;
+            margin-bottom: 80px;
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .section-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .section-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 
+                0 15px 40px rgba(0, 232, 255, 0.25),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        h2 {
+            font-size: 2.8rem;
+            margin-bottom: 25px;
+            color: #00E8FF;
+            text-shadow: 0 0 20px rgba(0, 232, 255, 0.4);
+        }
+
+        .section-icon {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            display: inline-block;
+            animation: float 3s ease-in-out infinite;
+            filter: drop-shadow(0 0 15px rgba(0, 232, 255, 0.4));
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .section-text {
+            font-size: 1.15rem;
+            line-height: 1.9;
+            color: rgba(255, 255, 255, 0.85);
+            margin-bottom: 20px;
+        }
+
+        /* Mission & Vision Grid */
+        .mission-vision-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 40px;
+            margin-top: 50px;
+        }
+
+        .mv-card {
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(0, 232, 255, 0.15);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .mv-card:hover {
+            border-color: rgba(0, 232, 255, 0.4);
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0, 232, 255, 0.2);
+        }
+
+        .mv-card h3 {
+            font-size: 2rem;
+            color: #00E8FF;
+            margin-bottom: 20px;
+            text-shadow: 0 0 15px rgba(0, 232, 255, 0.3);
+        }
+
+        .mv-card p {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        /* Values Section */
+        .values-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-top: 50px;
+        }
+
+        .value-card {
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(0, 232, 255, 0.15);
+            border-radius: 20px;
+            padding: 35px;
+            text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .value-card:hover {
+            border-color: rgba(0, 232, 255, 0.4);
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0, 232, 255, 0.2);
+        }
+
+        .value-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            filter: drop-shadow(0 0 10px rgba(0, 232, 255, 0.3));
+        }
+
+        .value-card h4 {
+            font-size: 1.5rem;
+            color: #00E8FF;
+            margin-bottom: 15px;
+        }
+
+        .value-card p {
+            font-size: 1rem;
+            line-height: 1.7;
+            color: rgba(255, 255, 255, 0.75);
+        }
+
+        /* Technology Stack */
+        .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 40px;
+        }
+
+        .tech-badge {
+            background: rgba(0, 232, 255, 0.1);
+            border: 1px solid rgba(0, 232, 255, 0.3);
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-size: 1rem;
+            color: #00E8FF;
+            box-shadow: 0 0 20px rgba(0, 232, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .tech-badge:hover {
+            background: rgba(0, 232, 255, 0.2);
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(0, 232, 255, 0.4);
+        }
+
+        /* Team Section */
+        .team-intro {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            text-align: center;
+            padding: 100px 20px 150px;
+        }
+
+        .cta-container {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(25px);
+            border: 1px solid rgba(0, 232, 255, 0.2);
+            border-radius: 30px;
+            padding: 60px 40px;
+            max-width: 700px;
+            margin: 0 auto;
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .cta-title {
+            font-size: 2.2rem;
+            margin-bottom: 20px;
+            color: #00E8FF;
+            text-shadow: 0 0 20px rgba(0, 232, 255, 0.4);
+        }
+
+        .cta-subtitle {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.75);
+            margin-bottom: 40px;
+        }
+
+        .btn {
+            padding: 18px 40px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            margin: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #00E8FF, #00C9FF);
+            color: #001a33;
+            box-shadow: 
+                0 5px 25px rgba(0, 232, 255, 0.4),
+                0 0 40px rgba(0, 232, 255, 0.2);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 
+                0 8px 30px rgba(0, 232, 255, 0.6),
+                0 0 60px rgba(0, 232, 255, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.08);
+            color: #fff;
+            border: 2px solid rgba(0, 232, 255, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: #00E8FF;
+            box-shadow: 0 0 30px rgba(0, 232, 255, 0.3);
+        }
+
+        /* Disclaimer */
+        .disclaimer {
+            margin-top: 60px;
+            padding: 30px;
+            background: rgba(255, 200, 100, 0.08);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 200, 100, 0.2);
+            border-radius: 20px;
+            text-align: center;
+        }
+
+        .disclaimer p {
+            font-size: 0.95rem;
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.6;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            h2 {
+                font-size: 2rem;
+            }
+
+            .hero-glass {
+                padding: 40px 30px;
+            }
+
+            .section-card {
+                padding: 40px 25px;
+            }
+
+            .mission-vision-grid,
+            .values-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .logo {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Underwater Ocean Background -->
+    <div class="ocean-background">
+        <div class="sunlight-rays"></div>
+        <div class="bubbles" id="bubbles"></div>
+        <div class="particles" id="particles"></div>
+        <div class="fish-container" id="fish-container"></div>
+    </div>
+
+    <!-- Navigation Bar -->
+    <nav>
+        <div class="container">
+            <a href="#" class="logo">
+                <span>🔱</span>
+                AquaSentinel
+            </a>
+            <ul class="nav-links">
+                <li><a href="#">Home</a></li>
+                <li><a href="#">How It Works</a></li>
+                <li><a href="#">Scan</a></li>
+                <li><a href="#" class="active">About</a></li>
+                <li><a href="#">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="hero-section">
+        <div class="container">
+            <div class="hero-glass">
+                <h1>About AquaSentinel</h1>
+                <p class="hero-subtitle">
+                    We're on a mission to democratize marine science through AI-powered species identification and ocean conservation awareness.
+                </p>
+                <p class="hero-tagline">
+                    "Empowering everyone to become a marine guardian"
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content Sections -->
+    <div class="container content-section">
+        
+        <!-- Our Story -->
+        <div class="section-card">
+            <div class="section-icon">🌊</div>
+            <h2>Our Story</h2>
+            <p class="section-text">
+                AquaSentinel was born from a simple yet powerful idea: what if anyone with a smartphone could instantly identify marine species and understand their ecological significance? In a world where ocean biodiversity faces unprecedented threats, we recognized the need for accessible, AI-powered tools that bridge the gap between marine science and public awareness.
+            </p>
+            <p class="section-text">
+                Our platform combines cutting-edge Vision AI with geospatial intelligence to provide instant species identification, habitat validation, and conservation context. Whether you're a marine biologist, a scuba diver, an educator, or simply someone who loves the ocean, AquaSentinel empowers you to explore, learn, and contribute to marine conservation efforts.
+            </p>
+        </div>
+
+        <!-- Mission & Vision -->
+        <div class="section-card">
+            <div class="section-icon">🎯</div>
+            <h2>Mission & Vision</h2>
+            <div class="mission-vision-grid">
+                <div class="mv-card">
+                    <h3>🚀 Our Mission</h3>
+                    <p>
+                        To make marine species identification accessible to everyone through AI-powered technology, fostering ocean literacy and empowering individuals to contribute to marine conservation and research.
+                    </p>
+                </div>
+                <div class="mv-card">
+                    <h3>🔭 Our Vision</h3>
+                    <p>
+                        A world where every ocean encounter becomes an opportunity for discovery, education, and conservation action—where technology bridges the gap between people and the ocean's incredible biodiversity.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Our Values -->
+        <div class="section-card">
+            <div class="section-icon">💎</div>
+            <h2>Our Core Values</h2>
+            <div class="values-grid">
+                <div class="value-card">
+                    <div class="value-icon">🔬</div>
+                    <h4>Scientific Integrity</h4>
+                    <p>We prioritize accuracy and transparency in our AI models, always acknowledging limitations and encouraging verification.</p>
+                </div>
+                <div class="value-card">
+                    <div class="value-icon">🌍</div>
+                    <h4>Conservation First</h4>
+                    <p>Every feature we build serves ocean conservation, raising awareness about marine biodiversity and threats to ecosystems.</p>
+                </div>
+                <div class="value-card">
+                    <div class="value-icon">🤝</div>
+                    <h4>Accessibility</h4>
+                    <p>Marine science shouldn't be limited to experts. We make knowledge accessible to everyone, everywhere.</p>
+                </div>
+                <div class="value-card">
+                    <div class="value-icon">🔒</div>
+                    <h4>Privacy & Ethics</h4>
+                    <p>We handle user data responsibly, using location information solely for species identification purposes.</p>
+                </div>
+                <div class="value-card">
+                    <div class="value-icon">⚡</div>
+                    <h4>Innovation</h4>
+                    <p>We continuously evolve our AI technology to provide faster, more accurate, and more insightful marine intelligence.</p>
+                </div>
+                <div class="value-card">
+                    <div class="value-icon">🎓</div>
+                    <h4>Education</h4>
+                    <p>We believe knowledge is power. Our platform educates users about marine ecosystems, conservation, and biodiversity.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Technology Stack -->
+        <div class="section-card">
+            <div class="section-icon">🛠️</div>
+            <h2>Powered by Cutting-Edge Technology</h2>
+            <p class="section-text">
+                AquaSentinel leverages the latest advancements in artificial intelligence and geospatial technology to deliver accurate, real-time marine species identification.
+            </p>
+            <div class="tech-stack">
+                <div class="tech-badge">Gemini 2.5 Flash Vision AI</div>
+                <div class="tech-badge">OpenStreetMap Nominatim</div>
+                <div class="tech-badge">Geolocation API</div>
+                <div class="tech-badge">Cloud Infrastructure</div>
+                <div class="tech-badge">Real-time Processing</div>
+                <div class="tech-badge">Marine Biology Database</div>
+                <div class="tech-badge">Conservation APIs</div>
+            </div>
+        </div>
+
+        <!-- What We Do -->
+        <div class="section-card">
+            <div class="section-icon">🐠</div>
+            <h2>What We Do</h2>
+            <p class="section-text">
+                AquaSentinel provides instant AI-powered identification of marine species by analyzing uploaded images and cross-referencing them with your geographical location. Our system:
+            </p>
+            <ul style="list-style: none; margin-top: 20px;">
+                <li style="padding: 10px 0; padding-left: 30px; position: relative; font-size: 1.1rem;">
+                    <span style="position: absolute; left: 0; color: #00E8FF; font-weight: bold;">✓</span>
+                    Identifies marine species from photographs using advanced Vision AI
+                </li>
+                <li style="padding: 10px 0; padding-left: 30px; position: relative; font-size: 1.1rem;">
+                    <span style="position: absolute; left: 0; color: #00E8FF; font-weight: bold;">✓</span>
+                    Validates habitat matches based on your geographical location
+                </li>
+                <li style="padding: 10px 0; padding-left: 30px; position: relative; font-size: 1.1rem;">
+                    <span style="position: absolute; left: 0; color: #00E8FF; font-weight: bold;">✓</span>
+                    Provides rarity assessments and conservation status information
+                </li>
+                <li style="padding: 10px 0; padding-left: 30px; position: relative; font-size: 1.1rem;">
+                    <span style="position: absolute; left: 0; color: #00E8FF; font-weight: bold;">✓</span>
+                    Generates comprehensive reports with ecological context and fun facts
+                </li>
+                <li style="padding: 10px 0; padding-left: 30px; position: relative; font-size: 1.1rem;">
+                    <span style="position: absolute; left: 0; color: #00E8FF; font-weight: bold;">✓</span>
+                    Educates users about marine biodiversity and conservation challenges
+                </li>
+            </ul>
+        </div>
+
+        <!-- Disclaimer -->
+        <div class="disclaimer">
+            <p>
+                <strong>⚠️ Important Note:</strong> AI-generated information may not be 100% accurate. Marine species classification can vary, and environmental conditions may affect identification. Always cross-reference our results with trusted marine databases or consult with marine biology experts for critical decisions.
+            </p>
+        </div>
+
+    </div>
+
+    <!-- CTA Section -->
+    <div class="cta-section">
+        <div class="container">
+            <div class="cta-container">
+                <h2 class="cta-title">Join the Ocean Revolution</h2>
+                <p class="cta-subtitle">
+                    Start exploring marine life with AI-powered intelligence and become part of the conservation movement.
+                </p>
+                <div>
+                    <a href="#" class="btn btn-primary">🚀 Start Scanning Species</a>
+                    <a href="#" class="btn btn-secondary">📧 Contact Us</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Generate floating bubbles
+        function createBubbles() {
+            const bubblesContainer = document.getElementById('bubbles');
+            const bubbleCount = 25;
+
+            for (let i = 0; i < bubbleCount; i++) {
+                const bubble = document.createElement('div');
+                bubble.className = 'bubble';
+                
+                const size = Math.random() * 20 + 5;
+                bubble.style.width = size + 'px';
+                bubble.style.height = size + 'px';
+                bubble.style.left = Math.random() * 100 + '%';
+                bubble.style.animationDelay = Math.random() * 10 + 's';
+                bubble.style.animationDuration = (Math.random() * 10 + 10) + 's';
+                
+                bubblesContainer.appendChild(bubble);
+            }
+        }
+
+        // Generate underwater particles
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 50;
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                
+                const size = Math.random() * 3 + 1;
+                particle.style.width = size + 'px';
+                particle.style.height = size + 'px';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 20 + 's';
+                particle.style.animationDuration = (Math.random() * 20 + 20) + 's';
+                
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // Generate swimming fish
+        function createFish() {
+            const fishContainer = document.getElementById('fish-container');
+            const fishCount = 6;
+            const fishEmojis = ['🐟', '🐠', '🐡', '🦈', '🐙', '🦑'];
+
+            for (let i = 0; i < fishCount; i++) {
+                const fish = document.createElement('div');
+                fish.className = 'fish';
+                fish.textContent = fishEmojis[i % fishEmojis.length];
+                fish.style.fontSize = (Math.random() * 20 + 25) + 'px';
+                fish.style.top = (Math.random() * 80 + 10) + '%';
+                fish.style.animationDelay = (Math.random() * 10) + 's';
+                fish.style.animationDuration = (Math.random() * 20 + 25) + 's';
+                
+                fishContainer.appendChild(fish);
+            }
+        }
+
+        // Scroll animations
+        function initScrollAnimations() {
+            const cards = document.querySelectorAll('.section-card');
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            });
+
+            cards.forEach(card => observer.observe(card));
+        }
+
+        // Parallax effect
+        function initParallax() {
+            window.addEventListener('scroll', () => {
+                const scrolled = window.pageYOffset;
+                const sunlightRays = document.querySelector('.sunlight-rays');
+                
+                if (sunlightRays) {
+                    sunlightRays.style.transform = `translateY(${scrolled * 0.2}px) rotate(-2deg)`;
+                }
+            });
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            createBubbles();
+            createParticles();
+            createFish();
+            initScrollAnimations();
+            initParallax();
+        });
+
+        // Smooth scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

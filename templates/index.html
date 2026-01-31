@@ -29,8 +29,8 @@
 
             <!-- Right side: Navigation links -->
             <div class="navbar-menu">
-                <a href="#about" class="nav-link">About Us</a>
-                <a href="#how-it-works" class="nav-link">How It Works</a>
+                <a href="{{ url_for('about') }}" class="nav-link">About Us</a>
+                <a href="{{ url_for('howitworks') }}" class="nav-link">How It Works</a>
                 <a href="#contact" class="nav-link">Contact</a>
                 <a href="{{ url_for('signin') }}" class="nav-link">Sign In</a>
                 <a href="{{ url_for('signup') }}" class="btn-signup">Sign Up</a>

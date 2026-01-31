@@ -92,6 +92,16 @@ def index():
     """Serve the main homepage"""
     return render_template('index.html')
 
+@app.route('/about')
+def about():
+    """Serve the about page"""
+    return render_template('about.html')
+
+@app.route('/howitworks')
+def howitworks():
+    """Serve the how it works page"""
+    return render_template('howitworks.html')
+
 @app.route('/signin', methods=['GET', 'POST'])
 def signin():
     """Handle user sign in"""
